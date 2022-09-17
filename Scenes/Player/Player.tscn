@@ -1,11 +1,11 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Assets/Sprites/Player/LOGAN_inicio-caminata-frontal.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/Player/Player.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Sprites/Player/Logan_caminata-Espaldas_Sprites.png" type="Texture" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 96, 96 )
+extents = Vector2( 50, 50 )
 
 [sub_resource type="AtlasTexture" id=2]
 flags = 4
@@ -63,6 +63,49 @@ animations = [ {
 "speed": 5.0
 } ]
 
+[sub_resource type="Animation" id=12]
+resource_name = "Death"
+length = 1.6
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4, 0.6, 0.8, 1.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.498039 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.501961 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+
+[sub_resource type="Animation" id=13]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+
 [node name="Player" type="Area2D"]
 script = ExtResource( 2 )
 
@@ -73,7 +116,6 @@ shape = SubResource( 1 )
 position = Vector2( 14, -137 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 6 )
-frame = 1
 playing = true
 
 [node name="Back" type="AnimatedSprite" parent="."]
@@ -81,7 +123,11 @@ visible = false
 position = Vector2( 2, -141 )
 scale = Vector2( 2, 2 )
 frames = SubResource( 11 )
-frame = 3
+frame = 2
 playing = true
 
 [node name="Tween" type="Tween" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/Death = SubResource( 12 )
+anims/RESET = SubResource( 13 )

@@ -1,61 +1,78 @@
 extends Area2D
 
-var valid_positions = [180,540,900]
+const MOVELEFT = "Left"
+const MOVERIGHT = "Right"
+const NOTMOVING = "None"
+
+var valid_positions = [220.0,412.0,668.0,860.0]
 var target_position
-var run_direction = "Up"
+var run_direction = -1
 var move_direction = "None"
-var speed = 500
+var speed = 300
+
+signal game_state(state) 
 
 func _ready():
 	pass
 
 func _process(delta):
 	if Input.is_action_just_pressed("ui_left"):
-		move_direction = "Left"
+		move_direction = MOVELEFT
 
 	if Input.is_action_just_pressed("ui_right"):
-		move_direction = "Right"
-
-
-
+		move_direction = MOVERIGHT
 
 func _physics_process(delta):
-	
-	side_movement_calculations()
-	move_player(delta)
-	
+	side_movement_processing()
+	move_direction = NOTMOVING
+	vertical_movement(delta)
 
-func side_movement_calculations() -> void:
-	print(valid_positions[0])
-	if move_direction == "None":
+func side_movement_processing() -> void:
+	
+	if move_direction == NOTMOVING:
 		return
 	
-	if move_direction == "Left" && valid_positions[0] * 0.9 < position.x && position.x < valid_positions[0] * 1.1:
-		move_direction = "None"
-		return
-	
-	if move_direction == "Right" && valid_positions[2] * 0.9 < position.x && position.x < valid_positions[2] * 1.1:
-		move_direction = "None"
-		return
-	
-	if move_direction == "Left":
-		if position.x < valid_positions[0] * 1.1 || (valid_positions[1] * 0.9 < position.x && position.x < valid_positions[1] * 1.1):
-			move_direction = "None" 
+	if move_direction == MOVERIGHT:
+		if position.x != valid_positions[valid_positions.size() - 1]:
+			var position_index = valid_positions.find(position.x)
+			if position_index == -1:
+				return
+			position.x = valid_positions[position_index + 1]
 			return
 	
-	if move_direction == "Right":
-		if position.x > valid_positions[2] * 0.9 || (valid_positions[1] * 0.9 > position.x && position.x > valid_positions[1] * 1.1):
-			move_direction = "None" 
+	if move_direction == MOVELEFT:
+		if position.x != valid_positions[0]:
+			var position_index = valid_positions.find(position.x)
+			if position_index == -1:
+				return
+			position.x = valid_positions[position_index - 1]
 			return
 
-func move_player(delta) -> void:
-	var move_vector: Vector2 = Vector2.ZERO
+func vertical_movement(delta) -> void:
 	
-	if move_direction == "Left":
-		move_vector.x -= speed * delta
-	if move_direction == "Right":
-		move_vector.x += speed * delta
-	
-	position += move_vector
+	position.y += run_direction * speed * delta
+
+func die() -> void:
+	$AnimationPlayer.play("Death")
+	set_physics_process(false)
+	emit_signal("game_state", "lose")
 
 
+func win() -> void:
+	set_physics_process(false)
+	$AnimationPlayer.stop(true)
+	emit_signal("game_state", "win")
+
+
+func _on_Player_area_entered(area):
+	if area.is_in_group("Things that kill"):
+		die()
+	
+	if area.is_in_group("Prize"):
+		run_direction = 1
+		$Front.hide()
+		$Back.show()
+		area.queue_free()
+	
+	if area.is_in_group("Exit") && run_direction == 1:
+		win()
